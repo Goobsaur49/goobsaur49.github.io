@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minx!_OS — Advanced Installation Guide</title>
+</head>
+<body>
+    <h1>Minx!_OS — Advanced Installation Guide</h1>
+    <p>This guide is for advanced users who want to build Minx!_OS from the ground up, similar to Arch Linux or Linux From Scratch. No graphical installer is provided.</p>
+
+    <h2>1. Boot the Live Environment</h2>
+    <p>Boot into the Minx!_OS live ISO and open a terminal.</p>
+
+    <h2>2. Connect to the Internet</h2>
+    <pre>
+# Ethernet
+ip link
+
+# Wi-Fi
+iwctl
+    </pre>
+
+    <h2>3. Partition the Disk</h2>
+    <p>Use fdisk or cfdisk:</p>
+    <pre>
+cfdisk /dev/sda
+    </pre>
+    <p>Create:</p>
+    <ul>
+        <li>EFI partition (300MB, FAT32)</li>
+        <li>Root partition (all remaining space, ext4)</li>
+    </ul>
+
+    <h2>4. Format the Partitions</h2>
+    <pre>
+mkfs.fat -F32 /dev/sda1
+mkfs.ext4 /dev/sda2
+    </pre>
+
+    <h2>5. Mount Target System</h2>
+    <pre>
+mount /dev/sda2 /mnt
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
+    </pre>
+
+    <h2>6. Install the Base System</h2>
+    <p>(Replace with your actual package manager — pacstrap equivalent)</p>
+    <pre>
+minx-install base linux linux-firmware
+    </pre>
+
+    <h2>7. Generate fstab</h2>
+    <pre>
+genfstab -U /mnt >> /mnt/etc/fstab
+    </pre>
+
+    <h2>8. Chroot Into the New System</h2>
+    <pre>
+minx-chroot /mnt
+    </pre>
+
+    <h2>9. Set Timezone, Locale, Hostname</h2>
+    <pre>
+ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime
+hwclock --systohc
+
+nano /etc/locale.gen
+locale-gen
+
+echo "minx-os" > /etc/hostname
+    </pre>
+
+    <h2>10. Install and Configure the Bootloader</h2>
+    <pre>
+minx-install grub efibootmgr
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=MinxOS
+grub-mkconfig -o /boot/grub/grub.cfg
+    </pre>
+
+    <h2>11. Set Root Password</h2>
+    <pre>
+passwd
+    </pre>
+
+    <h2>12. Reboot</h2>
+    <pre>
+exit
+umount -R /mnt
+reboot
+    </pre>
+
+    <h2>13. (Optional) Install Desktop Environment</h2>
+    <p>Examples:</p>
+    <pre>
+minx-install plasma
+minx-install gnome
+minx-install xfce4
+    </pre>
+
+    <p>Congratulations — you have successfully built Minx!_OS from scratch.</p>
+</body>
+</html>
+
+
